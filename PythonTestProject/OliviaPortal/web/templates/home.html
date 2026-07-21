@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Home — Olivia Portal{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Welcome, {{ username }}</p>
+  <h1>Your personal hub</h1>
+  <p>Choose Games for fun, or Data &amp; BI for expense reports and charts.</p>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('games') }}">Games</a>
+    <a class="btn secondary" href="{{ url_for('bi') }}">Data &amp; BI</a>
+  </div>
+</section>
+{% endblock %}

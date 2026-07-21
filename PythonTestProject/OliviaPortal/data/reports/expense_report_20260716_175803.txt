@@ -1,0 +1,16 @@
+Olivia Portal — Expense BI Report
+Generated: 2026-07-16 17:58:03
+
+Transactions : 20
+Total spent  : $772.55
+Average      : $38.63
+
+Spending by category:
+--------------------------------
+  Food             $  269.05
+  Utilities        $  220.00
+  Shopping         $  110.00
+  Entertainment    $  100.00
+  Transport        $   73.50
+
+End of report.

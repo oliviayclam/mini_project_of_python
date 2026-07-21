@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Games — Olivia Portal{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Games</h1>
+  <p class="muted">Play in the browser. Same ideas as the terminal games.</p>
+
+  <div class="game-grid">
+    <article>
+      <h2>Number Guessing</h2>
+      <p>Guess a number from 1 to 20.</p>
+      {% if guess_message %}<p class="ok">{{ guess_message }}</p>{% endif %}
+      {% if guess_hint %}<p>{{ guess_hint }}</p>{% endif %}
+      <form method="post" action="{{ url_for('games_guess') }}" class="stack">
+        <label>Your guess
+          <input type="number" name="guess" min="1" max="20" required>
+        </label>
+        <button type="submit">Guess</button>
+      </form>
+      <form method="post" action="{{ url_for('games_guess_reset') }}" style="margin-top:0.5rem">
+        <button type="submit" class="secondary-btn">New number</button>
+      </form>
+    </article>
+
+    <article>
+      <h2>Rock-Paper-Scissors</h2>
+      {% if rps_message %}<p>{{ rps_message }}</p>{% endif %}
+      <p class="muted">Score: You {{ rps_wins }} — {{ rps_losses }} Computer (ties: {{ rps_ties }})</p>
+      <form method="post" action="{{ url_for('games_rps') }}" class="actions">
+        <button type="submit" name="move" value="rock">Rock</button>
+        <button type="submit" name="move" value="paper">Paper</button>
+        <button type="submit" name="move" value="scissors">Scissors</button>
+      </form>
+    </article>
+
+        <article>
+      <h2>Number Guessing 4-digit Number</h2>
+      <p>Guess a number from 1000 to 9999. with unique digits.</p>
+      {% if digit_guess_message %}<p class="ok">{{ digit_guess_message }}</p>{% endif %}
+      {% if digit_guess_hint %}<p>{{ digit_guess_hint }}</p>{% endif %}
+      <form method="post" action="{{ url_for('digit_guess') }}" class="stack">
+        <label>Your guess
+          <input type="number" name="digit_guess" min="1000" max="9999" required>
+        </label>
+        <button type="submit">Guess</button>
+      </form>
+      <form method="post" action="{{ url_for('digit_games_guess_reset') }}" style="margin-top:0.5rem">
+        <button type="submit" class="secondary-btn">New number</button>
+      </form>
+    </article>
+  </div>
+
+  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+date,category,amount,note
+2026-01-05,Food,45.50,Groceries
+2026-01-07,Transport,18.00,Bus pass top-up
+2026-01-08,Food,12.30,Lunch
+2026-01-10,Entertainment,35.00,Movie tickets
+2026-01-12,Food,60.20,Weekly shop
+2026-01-15,Utilities,90.00,Electricity bill
+2026-01-18,Transport,25.50,Taxi
+2026-01-20,Entertainment,15.00,Streaming
+2026-01-22,Food,22.80,Coffee and snacks
+2026-01-25,Shopping,78.00,Clothes
+2026-02-01,Food,55.10,Groceries
+2026-02-03,Utilities,40.00,Internet
+2026-02-05,Transport,18.00,Bus pass top-up
+2026-02-08,Food,14.50,Lunch
+2026-02-10,Entertainment,50.00,Concert
+2026-02-12,Shopping,32.00,Home items
+2026-02-14,Food,48.75,Groceries
+2026-02-18,Transport,12.00,Metro
+2026-02-20,Food,9.90,Snacks
+2026-02-22,Utilities,90.00,Electricity bill

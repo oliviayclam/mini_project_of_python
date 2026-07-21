@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Data & BI — Olivia Portal{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Data &amp; BI</h1>
+  {% if message %}<p class="ok">{{ message }}</p>{% endif %}
+
+  <div class="stats">
+    <div><span>Transactions</span><strong>{{ count }}</strong></div>
+    <div><span>Total</span><strong>${{ '%.2f'|format(total) }}</strong></div>
+    <div><span>Average</span><strong>${{ '%.2f'|format(average) }}</strong></div>
+  </div>
+
+  <div class="actions">
+    <a class="btn" href="{{ url_for('bi', action='chart') }}">Create chart</a>
+    <a class="btn secondary" href="{{ url_for('bi', action='export') }}">Auto-export report</a>
+  </div>
+
+  <h2>Spending by category</h2>
+  <ul class="totals">
+    {% for category, amount in totals.items() %}
+    <li><span>{{ category }}</span><span>${{ '%.2f'|format(amount) }}</span></li>
+    {% endfor %}
+  </ul>
+
+  {% if chart_name %}
+  <h2>Chart</h2>
+  <img class="chart" src="{{ url_for('chart_file', filename=chart_name) }}" alt="Spending by category chart">
+  {% endif %}
+
+  <h2>Recent rows</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Category</th><th>Amount</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.date }}</td>
+          <td>{{ row.category }}</td>
+          <td>${{ row.amount }}</td>
+          <td>{{ row.note }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
