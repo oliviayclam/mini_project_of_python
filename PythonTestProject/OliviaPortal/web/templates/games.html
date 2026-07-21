@@ -36,8 +36,8 @@
         <article>
       <h2>Number Guessing 4-digit Number</h2>
       <p>Guess a number from 1000 to 9999. with unique digits.</p>
-      {% if digit_guess_message %}<p class="ok">{{ digit_guess_message }}</p>{% endif %}
-      {% if digit_guess_hint %}<p>{{ digit_guess_hint }}</p>{% endif %}
+      {% if digits_guess_message %}<p class="ok">{{ digits_guess_message }}</p>{% endif %}
+      {% if digits_guess_hint %}<p>{{ digits_guess_hint }}</p>{% endif %}
       <form method="post" action="{{ url_for('digit_guess') }}" class="stack">
         <label>Your guess
           <input type="number" name="digit_guess" min="1000" max="9999" required>

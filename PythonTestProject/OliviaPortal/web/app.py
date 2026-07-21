@@ -84,9 +84,9 @@ def _ensure_guess_secret():
         session["guess_attempts"] = 0
 
 def _ensure_digit_guess_secret():
-    if "digit_guess_secret" not in session:
-        session["digit_guess_secret"] = random.randint(1000, 9999)
-        session["digit_guess_attempts"] = 0
+    if "digits_guess_secret" not in session:
+        session["digits_guess_secret"] = random.randint(1000, 9999)
+        session["digits_guess_attempts"] = 10
 
 
 @app.route("/games")
@@ -102,7 +102,7 @@ def games():
         rps_wins=session.get("rps_wins", 0),
         rps_losses=session.get("rps_losses", 0),
         rps_ties=session.get("rps_ties", 0),
-        digits_guess_message=session.pop("_digits_guess_message", None),
+        digits_guess_message=session.pop("digits_guess_message", None),
         digits_guess_hint=session.pop("digits_guess_hint", None),
     )
 
@@ -142,9 +142,9 @@ def games_guess_reset():
 @app.route("/games/digit_guess/reset", methods=["POST"])
 @login_required
 def digit_games_guess_reset():
-    session.pop("digit_guess_secret", None)
-    session["digit_guess_attempts"] = 0
-    session["digit_guess_message"] = "New number ready. Guess again!"
+    session.pop("digits_guess_secret", None)
+    session["digits_guess_attempts"] = 0
+    session["digits_guess_message"] = "New number ready. Guess again!"
     return redirect(url_for("games"))
 
 
@@ -174,39 +174,43 @@ def games_rps():
 def digit_guess():
     _ensure_digit_guess_secret()
 
-    digit_secret = session["digit_guess_secret"]
+    digit_secret = session["digits_guess_secret"]
+    print(digit_secret)
     digit_guess = request.form.get("digit_guess", "").strip()
 
     # Track remaining attempts in the session (default to 10 if not set)
-    attempts = session.get("digit_guess_attempts", 10)
+    attempts = session.get("digits_guess_attempts", 10)
 
     # 1. Validate Input (Use if / elif / else so invalid inputs stop processing!)
     if not digit_guess.isdigit() or len(digit_guess) != 4:
-        session["digit_guess_message"] = "Please enter a valid 4-digit number."
+        session["digits_guess_message"] = "Please enter a valid 4-digit number."
 
     elif not no_duplicates(digit_guess):
-        session["digit_guess_message"] = "Number should not have repeated digits. Try again."
+        print("no_duplicates(digit_guess)")
+        print(no_duplicates(digit_guess))
+
+        session["digits_guess_message"] = "Number should not have repeated digits. Try again."
 
     else:
         # 2. Input is valid -> Process guess & decrement attempts
         attempts -= 1
-        session["digit_guess_attempts"] = attempts
+        session["digits_guess_attempts"] = attempts
 
-        bulls, cows = num_of_bulls_cows(digit_guess, digit_secret)
+        bulls, cows = num_of_bulls_cows(digit_secret, digit_guess)
 
         # 3. Check Win / Loss / Next Attempt conditions
         if bulls == 4:
-            session["digit_guess_message"] = "You guessed right!"
-            session.pop("digit_guess_secret", None)  # Reset secret for next game
-            session.pop("digit_guess_attempts", None)
+            session["digits_guess_message"] = "You guessed right!"
+            session.pop("digits_guess_secret", None)  # Reset secret for next game
+            session.pop("digits_guess_attempts", None)
 
         elif attempts <= 0:
-            session["digit_guess_message"] = f"You ran out of tries. The number was {digit_secret}."
-            session.pop("digit_guess_secret", None)
-            session.pop("digit_guess_attempts", None)
+            session["digits_guess_hint"] = f"You ran out of tries. The number was {digit_secret}."
+            session.pop("digits_guess_secret", None)
+            session.pop("digits_guess_attempts", None)
 
         else:
-            session["digit_guess_message"] = f"{bulls} bulls, {cows} cows. ({attempts} tries left)"
+            session["digits_guess_hint"] = f"{bulls} bulls, {cows} cows. ({attempts} tries left)"
 
     return redirect(url_for("games"))
 

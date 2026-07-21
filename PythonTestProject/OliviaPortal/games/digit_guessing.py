@@ -8,8 +8,7 @@ def get_digits(num):
     return [int(i) for i in str(num)]
     
 
-# Returns True if number has 
-# no duplicate digits 
+# Returns True if number has no duplicate digits
 # otherwise False      
 def no_duplicates(num):
     num_li = get_digits(num)

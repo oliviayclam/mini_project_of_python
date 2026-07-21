@@ -46,7 +46,7 @@ python3 web/app.py
 Open http://127.0.0.1:5000
 
 - Login page
-- Games page (Number Guessing + Rock-Paper-Scissors in the browser)
+- Games page (Number Guessing + Rock-Paper-Scissors + 4 Digit Guessing in the browser)
 - Data & BI page (table, totals, create chart, auto-export report)
 
 ## How a website works here
