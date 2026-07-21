@@ -1,0 +1,4 @@
+first python project
+
+matplotlib>=3.7
+flask>=3.0
