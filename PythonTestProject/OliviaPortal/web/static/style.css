@@ -136,3 +136,103 @@ pre {
   .top { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
   nav a { margin-left: 0; margin-right: 0.9rem; }
 }
+
+/* Upload Container Card */
+.upload-card {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.upload-card h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.upload-card p {
+    color: #718096;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+/* Form Layout */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* The Designed Drag & Drop Dropzone */
+.dropzone-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #cbd5e0;
+    background-color: #f7fafc;
+    border-radius: 14px;
+    padding: 2.5rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Dropzone Hover Effects */
+.dropzone-label:hover {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+}
+
+/* Animated Cloud Icon */
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    stroke: #4299e1;
+    margin-bottom: 1rem;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dropzone-label:hover .upload-icon {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.dropzone-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Hide the ugly default file input button */
+.hidden-input {
+    display: none;
+}
+
+/* Elegant Upload Button */
+.submit-btn {
+    background-color: #3182ce;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(49, 130, 206, 0.3);
+    transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+    background-color: #2b6cb0;
+    box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
+    transform: translateY(-1px);
+}
+
+.submit-btn:active {
+    transform: translateY(1px);
+}

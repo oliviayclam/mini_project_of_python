@@ -11,7 +11,7 @@ Login: olivia / 1234
 import random
 import sys
 from pathlib import Path
-
+import os
 from flask import (
     Flask,
     redirect,
@@ -20,7 +20,9 @@ from flask import (
     send_from_directory,
     session,
     url_for,
+    flash
 )
+from werkzeug.utils import secure_filename
 
 # Allow importing auth + bi from the parent OliviaPortal folder
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,9 +35,21 @@ from bi.load_data import load_rows  # noqa: E402
 from bi.report import export_report  # noqa: E402
 from bi.summary import category_totals, overall_stats  # noqa: E402
 from games.digit_guessing import generate_num, no_duplicates,get_digits,num_of_bulls_cows  # noqa: E402
+from data_transfer.upload_file import upload_file,allowed_file # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = "olivia-portal-dev-only-change-me-v2"
+# Set the upload path to: project_folder/data/uploaded_file
+# os.path.join(BASE_DIR, 'data', 'uploaded_file'): Dynamically constructs the path across Windows, macOS, or Linux without hardcoding slash directions (/ vs \).
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# UPLOAD_FOLDER = os.path.join(BASE_DIR, 'data', 'uploaded_file')
+
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# os.makedirs(..., exist_ok=True): Automatically creates the parent data folder and the nested uploaded_file subfolder at the same time if they don't already exist.
+# os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
 
 
 def login_required(view):
@@ -247,6 +261,43 @@ def bi():
         message=message,
     )
 
+
+@app.route("/transfer", methods=["POST","GET"])
+@login_required
+def transfer():
+    if request.method == "GET":
+    # If GET request, render page as normal
+        return render_template(
+            "transfer.html",
+            username=session["username"]
+        )
+    else:
+        path = upload_file()
+        # Check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part selected')
+            return redirect(request.url)
+
+        file = request.files['file']
+
+        # If user submits without selecting a file
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+
+        # Validate and save file
+        # Never trust user - supplied filenames directly! Always use secure_filename()
+        # to prevent path traversal vulnerabilities
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(path, filename)
+            file.save(file_path)
+
+            flash(f'File "{filename}" uploaded successfully!')
+            return redirect(url_for('transfer'))
+        else:
+            flash('File type not allowed')
+            return redirect(request.url)
 
 @app.route("/charts/<path:filename>")
 @login_required
