@@ -265,14 +265,23 @@ def bi():
 @app.route("/transfer", methods=["POST","GET"])
 @login_required
 def transfer():
-    if request.method == "GET":
+    path = upload_file()
     # If GET request, render page as normal
+    if request.method == "GET":
+        # Retrieve all files currently saved in data/uploaded_file
+        files_list = []
+        if os.path.exists(path):
+            # Filter out hidden system files (like .DS_Store)
+            files_list = [
+                f for f in os.listdir(path)
+                if not f.startswith('.')
+            ]
         return render_template(
             "transfer.html",
-            username=session["username"]
+            username=session["username"],
+            files = files_list
         )
     else:
-        path = upload_file()
         # Check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part selected')

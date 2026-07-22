@@ -4,27 +4,87 @@
 <section class="panel">
   <h1>Transfer Data</h1>
 
-  <div class="upload-card">
-        <h2>Upload Your Files</h2>
-        <p>Supports documents, images, and sheets</p>
+  <div class="transfer-container">
+    <!-- LEFT SIDE: Upload Card -->
+    <div class="upload-card">
+      <h2>Upload Your Files</h2>
+      <p>Supports documents, images, and sheets</p>
 
-        <form action="{{ url_for('transfer') }}" method="POST" enctype="multipart/form-data" class="upload-form">
-            <!-- Dropzone Label -->
-            <label class="dropzone-label">
-                <!-- SVG Cloud Icon -->
-                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://w3.org">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                <span class="dropzone-text">Click to browse or drag file here</span>
+      <form action="{{ url_for('transfer') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+        <label class="dropzone-label" id="dropzone">
+          <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <span class="dropzone-text" id="dropzone-text">Click to browse or drag file here</span>
+          <span class="selected-file-name" id="file-name-display"></span>
 
-                <!-- Actual Hidden Input -->
-                <input type="file" name="file" class="hidden-input" required />
-            </label>
+          <!-- Actual Hidden File Input -->
+          <input type="file" name="file" id="file-input" class="hidden-input" required />
+        </label>
 
-            <button type="submit" class="submit-btn">Upload to Server</button>
-        </form>
+        <button type="submit" class="submit-btn" style="margin-top: 1rem;">Upload to Server</button>
+      </form>
     </div>
+
+    <!-- RIGHT SIDE: Saved Files List -->
+    <div class="file-list-card">
+      <h2>Uploaded Files</h2>
+      {% if files %}
+        <ul class="file-list">
+          {% for file in files %}
+            <li class="file-item">
+              📄 &nbsp; <span>{{ file }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty-state">No files uploaded yet.</p>
+      {% endif %}
+    </div>
+  </div>
 
   <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
 </section>
+
+<!-- JavaScript to handle showing selected file name and drag-and-drop UI -->
+<script>
+  const fileInput = document.getElementById('file-input');
+  const dropzoneText = document.getElementById('dropzone-text');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const dropzone = document.getElementById('dropzone');
+
+  // Update display when a user selects a file via browsing
+  fileInput.addEventListener('change', function() {
+    if (this.files && this.files.length > 0) {
+      const name = this.files[0].name;
+      dropzoneText.textContent = "Selected file:";
+      fileNameDisplay.textContent = name;
+    }
+  });
+
+  // Optional: Drag and drop styling support
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      dropzoneText.textContent = "Selected file:";
+      fileNameDisplay.textContent = files[0].name;
+    }
+  });
+</script>
 {% endblock %}
