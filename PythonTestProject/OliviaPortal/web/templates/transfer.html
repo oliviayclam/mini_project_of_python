@@ -10,81 +10,118 @@
       <h2>Upload Your Files</h2>
       <p>Supports documents, images, and sheets</p>
 
-      <form action="{{ url_for('transfer') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+      <form action="{{ url_for('transfer') }}" method="POST" enctype="multipart/form-data">
         <label class="dropzone-label" id="dropzone">
           <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
           </svg>
-          <span class="dropzone-text" id="dropzone-text">Click to browse or drag file here</span>
+          <span id="dropzone-text">Click to browse or drag file here</span>
           <span class="selected-file-name" id="file-name-display"></span>
-
-          <!-- Actual Hidden File Input -->
           <input type="file" name="file" id="file-input" class="hidden-input" required />
         </label>
-
         <button type="submit" class="submit-btn" style="margin-top: 1rem;">Upload to Server</button>
       </form>
     </div>
 
-    <!-- RIGHT SIDE: Saved Files List -->
+    <!-- RIGHT SIDE: Saved Files List with Selection -->
     <div class="file-list-card">
-      <h2>Uploaded Files</h2>
+      <h2>Select an Uploaded File</h2>
       {% if files %}
-        <ul class="file-list">
-          {% for file in files %}
-            <li class="file-item">
-              📄 &nbsp; <span>{{ file }}</span>
-            </li>
-          {% endfor %}
-        </ul>
+        <form id="process-file-form" method="POST" action="">
+          <ul class="file-list">
+            {% for file in files %}
+              <li class="file-item">
+                <input type="radio" name="selected_file" value="{{ file }}" id="file-{{ loop.index }}" class="file-radio">
+                <label for="file-{{ loop.index }}" style="cursor: pointer; width: 100%;">📄 {{ file }}</label>
+              </li>
+            {% endfor %}
+          </ul>
+        </form>
       {% else %}
-        <p class="empty-state">No files uploaded yet.</p>
+        <p style="color: #94a3b8; font-style: italic;">No files uploaded yet.</p>
       {% endif %}
     </div>
   </div>
 
-  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
+  <!-- TOOLS SECTION (Above Back Home) -->
+  <div class="tools-section">
+    <h3>File Processing Tools</h3>
+    <p style="font-size: 0.9rem; color: #64748b;">Select a file from the list on the right, then choose an action below:</p>
+
+    <div class="tools-buttons">
+      <!-- Button 1: Text to Speech -->
+      <button type="button" class="tool-btn" onclick="submitToolAction('/text_to_speech')">
+        🔊 Text to Speech
+      </button>
+
+      <!-- Button 2: Compare PDF -->
+      <button type="button" class="tool-btn" onclick="submitToolAction('/compare_pdf')">
+        📊 Compare PDF
+      </button>
+
+      <!-- Button 3: Find Value -->
+      <button type="button" class="tool-btn" onclick="toggleFindValueBox()">
+        🔍 Find Value
+      </button>
+    </div>
+
+    <!-- Hidden Search Box for Find Value -->
+    <div id="find-value-box" class="find-value-box">
+      <input type="text" id="search-key" name="search_key" placeholder="Enter key to find..." class="input-field" />
+      <button type="button" class="tool-btn" onclick="submitToolAction('/find_value')">Search</button>
+    </div>
+  </div>
+
+  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem; display: inline-block;">Back home</a>
 </section>
 
-<!-- JavaScript to handle showing selected file name and drag-and-drop UI -->
 <script>
+  // File upload input update
   const fileInput = document.getElementById('file-input');
-  const dropzoneText = document.getElementById('dropzone-text');
-  const fileNameDisplay = document.getElementById('file-name-display');
-  const dropzone = document.getElementById('dropzone');
-
-  // Update display when a user selects a file via browsing
   fileInput.addEventListener('change', function() {
     if (this.files && this.files.length > 0) {
-      const name = this.files[0].name;
-      dropzoneText.textContent = "Selected file:";
-      fileNameDisplay.textContent = name;
+      document.getElementById('dropzone-text').textContent = "Selected file:";
+      document.getElementById('file-name-display').textContent = this.files[0].name;
     }
   });
 
-  // Optional: Drag and drop styling support
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    }, false);
-  });
+  // Toggle Search input for "Find Value"
+  function toggleFindValueBox() {
+    const box = document.getElementById('find-value-box');
+    box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+  }
 
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-    }, false);
-  });
+  // Handle submitting the processing action to Flask backend
+  function submitToolAction(actionUrl) {
+    const form = document.getElementById('process-file-form');
+    const selectedFile = document.querySelector('input[name="selected_file"]:checked');
 
-  dropzone.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    if (files.length > 0) {
-      fileInput.files = files;
-      dropzoneText.textContent = "Selected file:";
-      fileNameDisplay.textContent = files[0].name;
+    if (!selectedFile) {
+      alert("Please select an uploaded file from the list first!");
+      return;
     }
-  });
+
+    if (actionUrl === '/find_value') {
+      const searchKey = document.getElementById('search-key').value.trim();
+      if (!searchKey) {
+        alert("Please enter a key to search for!");
+        return;
+      }
+
+      // Append search_key as a hidden input inside the form before submitting
+      let hiddenKey = document.getElementById('hidden-search-key');
+      if (!hiddenKey) {
+        hiddenKey = document.createElement('input');
+        hiddenKey.type = 'hidden';
+        hiddenKey.id = 'hidden-search-key';
+        hiddenKey.name = 'search_key';
+        form.appendChild(hiddenKey);
+      }
+      hiddenKey.value = searchKey;
+    }
+
+    form.action = actionUrl;
+    form.submit();
+  }
 </script>
 {% endblock %}

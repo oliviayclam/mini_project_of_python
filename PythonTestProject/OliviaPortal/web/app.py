@@ -307,7 +307,32 @@ def transfer():
         else:
             flash('File type not allowed')
             return redirect(request.url)
+@app.route("/text_to_speech", methods=["POST"])
+@login_required
+def text_to_speech():
+    selected_file = request.form.get("selected_file")
+    # Add your Text-to-Speech logic here
+    flash(f"Processing Text to Speech for file: {selected_file}")
+    return redirect(url_for("transfer"))
 
+
+@app.route("/compare_pdf", methods=["POST"])
+@login_required
+def compare_pdf():
+    selected_file = request.form.get("selected_file")
+    # Add your PDF comparison logic here
+    flash(f"Comparing PDF file: {selected_file}")
+    return redirect(url_for("transfer"))
+
+
+@app.route("/find_value", methods=["POST"])
+@login_required
+def find_value():
+    selected_file = request.form.get("selected_file")
+    search_key = request.form.get("search_key")
+    # Add your search logic here (e.g., searching for key inside the file)
+    flash(f"Searching for key '{search_key}' in file: {selected_file}")
+    return redirect(url_for("transfer"))
 @app.route("/charts/<path:filename>")
 @login_required
 def chart_file(filename):
