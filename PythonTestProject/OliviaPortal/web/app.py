@@ -20,7 +20,8 @@ from flask import (
     send_from_directory,
     session,
     url_for,
-    flash
+    flash,
+    jsonify
 )
 from werkzeug.utils import secure_filename
 
@@ -362,15 +363,16 @@ def map():
 @app.route("/selected_city", methods=["POST"])
 @login_required
 def selected_city():
-    selected_city = request.form.get("country")
-    if selected_city is None:
-        city = 'Hong Kong'
-    else:
-        city = selected_city
-
-    session["message"] = find_weather(city)
-    session["country"] = city
-    return redirect(url_for("map"))
+    city = request.json.get("country") if request.is_json else request.form.get("country")
+    print(find_weather(city))
+    weather_info, lat, lng = find_weather(city)
+    return jsonify({
+        "status": "success",
+        "message": weather_info,
+        "country": city,
+        "lat": lat,
+        "lng": lng
+    })
 
 
 

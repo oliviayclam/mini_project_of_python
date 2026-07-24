@@ -13,55 +13,42 @@
     <article>
       <h2>Country</h2>
       <p>Please select country</p>
-
-      {% if message %}<p class="ok">{{ message }}</p>{% endif %}
-
-      <form method="post" action="{{ url_for('selected_city') }}" style="margin-top:0.5rem">
-
-        <!-- Dropdown Select Menu -->
+      <p id="weather-message" class="ok" style="display: none;"></p>
+      <form id="country-form" style="margin-top:0.5rem">
         <div class="form-group">
-          <select name="country" id="country-select" class="dropdown-select" required>
-            <option value="" disabled {% if not selected_country %}selected{% endif %}>
-              Select a country...
-            </option>
-
+            <label for="country-select"></label>
+            <select name="country" id="country-select" class="dropdown-select" required>
+            <option value="" disabled selected>Select a country...</option>
             {% for country in countries %}
               <option value="{{ country.name }}"
                       data-lat="{{ country.lat }}"
-                      data-lng="{{ country.lng }}"
-                      {% if selected_country == country.name %}selected{% endif %}>
+                      data-lng="{{ country.lng }}">
                 {{ country.name }}
               </option>
             {% endfor %}
           </select>
         </div>
 
-        <button type="submit" class="secondary-btn" style="margin-top: 1rem;">Confirm</button>
+        <button type="submit" id="submit-btn" class="secondary-btn" style="margin-top: 1rem;">
+          <span id="btn-text">Confirm</span>
+        </button>
       </form>
     </article>
 
-    <!-- Map Container -->
     <article>
       <h2>Location Map</h2>
-      <div id="map" style="height: 350px; width: 100%; border-radius: 8px; margin-top: 1rem;"></div>
+      <div id="map" style="height: 350px; width: 100%; border-radius: 8px;"></div>
     </article>
   </div>
-
-  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
 </section>
-
 <!-- Leaflet JavaScript -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Include Leaflet CSS/JS if not already present -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-// 1. Get initial coordinates from Flask backend (defaults to 20, 0 if None)
-  const initialLat = {{ selected_lat|tojson }};
-  const initialLng = {{ selected_lng|tojson }};
-  const initialZoom = {{ zoom_level|tojson }};
-  const selectedCountryName = {{ selected_country|tojson }};
-
-  // 2. Initialize map with backend coordinates
-  const map = L.map('map').setView([initialLat, initialLng], initialZoom);
+  // 1. Initialize Map
+  const map = L.map('map').setView([20, 0], 2);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -70,39 +57,79 @@
 
   let currentMarker = null;
 
-  // 3. If a country was previously submitted, drop a marker immediately on reload
-  if (selectedCountryName) {
-      currentMarker = L.marker([initialLat, initialLng])
-          .addTo(map)
-          .bindPopup(`<b>${selectedCountryName}</b>`)
-          .openPopup();
-  }
+  // 2. Select Elements
+    const form = document.getElementById('country-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const messageElement = document.getElementById('weather-message');
+    const selectElement = document.getElementById('country-select');
 
-  // 4. Update map dynamically if user chooses a new item before submitting
-  const selectElement = document.getElementById('country-select');
-  selectElement.addEventListener('change', function() {
-      const selectedOption = this.options[this.selectedIndex];
-      const lat = parseFloat(selectedOption.getAttribute('data-lat'));
-      const lng = parseFloat(selectedOption.getAttribute('data-lng'));
 
-      if (!isNaN(lat) && !isNaN(lng)) {
-          map.flyTo([lat, lng], 5);
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-          if (currentMarker) map.removeLayer(currentMarker);
+        const selectedCountry = selectElement.value;
+        // ----------------------------------------------------
+        // 3. START LOADING STATE and Handle Form Submit via AJAX
+        // ----------------------------------------------------
+        submitBtn.disabled = true;                // Prevent double clicking
+        btnText.textContent = "Loading...";        // Change button text
 
-          currentMarker = L.marker([lat, lng])
-              .addTo(map)
-              .bindPopup(`<b>${selectedOption.text}</b>`)
-              .openPopup();
-      }
-  });
-  // 4. Center map if server passed selected country coordinates on load
-  {% if selected_lat and selected_lng %}
-      const initialLat = {{ selected_lat }};
-      const initialLng = {{ selected_lng }};
-      map.setView([initialLat, initialLng], 5);
-      currentMarker = L.marker([initialLat, initialLng]).addTo(map)
-          .bindPopup("<b>Selected Location</b>").openPopup();
-  {% endif %}
+        if (messageElement) {
+            messageElement.textContent = "Fetching weather data...";
+            messageElement.style.display = "block";
+        }
+
+        try {
+            const response = await fetch("{{ url_for('selected_city') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ country: selectedCountry })
+            });
+
+            if (!response.ok) throw new Error(`Server status: ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                // Update Weather Message
+                if (messageElement) {
+                    messageElement.textContent = data.message;
+                }
+
+                // Move Map & Marker
+                const lat = parseFloat(data.lat);
+                const lng = parseFloat(data.lng);
+
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    map.invalidateSize();
+                    map.flyTo([lat, lng], 5);
+
+                    if (currentMarker) map.removeLayer(currentMarker);
+
+                    currentMarker = L.marker([lat, lng])
+                        .addTo(map)
+                        .bindPopup(`<b>${data.country}</b><br>${data.message}`)
+                        .openPopup();
+                }
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            if (messageElement) {
+                messageElement.textContent = "Failed to load weather data. Please try again.";
+            }
+        } finally {
+            // ----------------------------------------------------
+            // 4. END LOADING STATE (Runs on both success & error)
+            // ----------------------------------------------------
+            // End Loading:
+            submitBtn.disabled = false;
+            btnText.textContent = "Confirm";
+        }
+    });
+
 </script>
 {% endblock %}

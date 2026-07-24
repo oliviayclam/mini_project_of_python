@@ -1,44 +1,40 @@
 import requests
 
-def find_weather(city):
-# 1. Get coordinates from city name
-    geo_url = "https://geocoding-api.open-meteo.com/v1/search"
-    geo_params = {"name": city, "count": 1}
-    geo_res = requests.get(geo_url, params=geo_params).json()
+import requests
 
-    if "results" in geo_res:
-        lat = geo_res["results"][0]["latitude"]
-        lon = geo_res["results"][0]["longitude"]
 
-        # 2. Get weather data
-        weather_url = "https://api.open-meteo.com/v1/forecast"
-        weather_params = {
-            "latitude": lat,
-            "longitude": lon,
-            "current_weather": True
-        }
-        weather_res = requests.get(weather_url, params=weather_params).json()
+def find_weather(city_name):
+    try:
+        # 1. First API call: Convert city name to latitude & longitude
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&language=en&format=json"
+        geo_response = requests.get(geo_url)
+        geo_data = geo_response.json()
 
-        if "current_weather" in weather_res:
-            temp = weather_res["current_weather"]["temperature"]
-            wind = weather_res["current_weather"]["windspeed"]
-            weather_info = f"{city}: {temp}°C, Wind {wind} km/h"
+        # Check if city was found
+        if not geo_data.get("results"):
+            return f"Could not find coordinates for {city_name}", 20.0, 0.0
 
-            print("Weather:", weather_info)
+        location = geo_data["results"][0]
+        lat = location["latitude"]
+        lng = location["longitude"]
 
-            # 3. Cross-platform notification
-            # notification.notify(
-            #     title="Weather Update",
-            #     message=weather_info,
-            #     timeout=5
-            # )
-            return weather_info
-        else:
-            print("Weather data not found")
-            return f"Weather data not found"
-    else:
-        print("City not found")
-        return f"City not found"
+        # 2. Second API call: Get weather for those coordinates
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current=temperature_2m,relative_humidity_2m,weather_code"
+        weather_response = requests.get(weather_url)
+        weather_data = weather_response.json()
+
+        current = weather_data.get("current", {})
+        temp = current.get("temperature_2m", "N/A")
+
+        weather_info = f"Weather in {city_name}: {temp}°C"
+
+        # ALWAYS return exactly 3 values in a tuple:
+        return weather_info, lat, lng
+
+    except Exception as e:
+        print(f"Error fetching weather: {e}")
+        # Fallback values if anything breaks
+        return f"Error loading weather for {city_name}", 20.0, 0.0
 
 def get_countries():
     # 1. Define the REST Countries endpoint
