@@ -338,25 +338,38 @@ def find_value():
 @app.route("/map")
 @login_required
 def map():
+    message = session.get("message")
+    selected_country = session.get("country")
     countries = get_countries()
+
+    # Example: Retrieve lat/lng for the selected country/city
+    # Replace this lookup logic with your actual helper function or API
+    selected_lat = session.get("lat", 20)  # Default fallback lat
+    selected_lng = session.get("lng", 0)  # Default fallback lng
+
+    # If a country was selected, set a default zoom level closer in
+    zoom_level = 5 if selected_country else 2
+
     return render_template(
         "map.html",
-        username=session["username"],
-        message=session.pop("message", None),
+        message=message,
+        selected_country=selected_country,
+        selected_lat=selected_lat,
+        selected_lng=selected_lng,
+        zoom_level=zoom_level,
         countries=countries
     )
-
-@app.route("/selected_city", methods=["POST","GET"])
+@app.route("/selected_city", methods=["POST"])
 @login_required
 def selected_city():
     selected_city = request.form.get("country")
-    print(selected_city)
     if selected_city is None:
         city = 'Hong Kong'
     else:
         city = selected_city
 
     session["message"] = find_weather(city)
+    session["country"] = city
     return redirect(url_for("map"))
 
 

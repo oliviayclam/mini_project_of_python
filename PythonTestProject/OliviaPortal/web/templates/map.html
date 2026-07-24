@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Games — Olivia Portal{% endblock %}
+
 {% block content %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
 <section class="panel">
-  <h1>Games</h1>
+  <h1>Map</h1>
   <p class="muted">You can search any country weather and location here.</p>
 
   <div class="game-grid">
@@ -17,27 +21,88 @@
         <!-- Dropdown Select Menu -->
         <div class="form-group">
           <select name="country" id="country-select" class="dropdown-select" required>
-            <option value="" disabled selected>Select a country...</option>
+            <option value="" disabled {% if not selected_country %}selected{% endif %}>
+              Select a country...
+            </option>
 
-            <!-- If you pass a list of countries from Flask/Jinja context -->
-            {% if countries %}
-              {% for country in countries %}
-                <option value="{{ country.name }}">{{ country.name }}</option>
-              {% endfor %}
-            {% else %}
-              <!-- Hardcoded Fallback Examples -->
-              <option value="US">United States</option>
-              <option value="UK">United Kingdom</option>
-              <option value="CA">Canada</option>
-              <option value="JP">Japan</option>
-            {% endif %}
+            {% for country in countries %}
+              <option value="{{ country.name }}"
+                      data-lat="{{ country.lat }}"
+                      data-lng="{{ country.lng }}"
+                      {% if selected_country == country.name %}selected{% endif %}>
+                {{ country.name }}
+              </option>
+            {% endfor %}
           </select>
         </div>
 
         <button type="submit" class="secondary-btn" style="margin-top: 1rem;">Confirm</button>
       </form>
     </article>
+
+    <!-- Map Container -->
+    <article>
+      <h2>Location Map</h2>
+      <div id="map" style="height: 350px; width: 100%; border-radius: 8px; margin-top: 1rem;"></div>
+    </article>
   </div>
+
   <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
 </section>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+// 1. Get initial coordinates from Flask backend (defaults to 20, 0 if None)
+  const initialLat = {{ selected_lat|tojson }};
+  const initialLng = {{ selected_lng|tojson }};
+  const initialZoom = {{ zoom_level|tojson }};
+  const selectedCountryName = {{ selected_country|tojson }};
+
+  // 2. Initialize map with backend coordinates
+  const map = L.map('map').setView([initialLat, initialLng], initialZoom);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let currentMarker = null;
+
+  // 3. If a country was previously submitted, drop a marker immediately on reload
+  if (selectedCountryName) {
+      currentMarker = L.marker([initialLat, initialLng])
+          .addTo(map)
+          .bindPopup(`<b>${selectedCountryName}</b>`)
+          .openPopup();
+  }
+
+  // 4. Update map dynamically if user chooses a new item before submitting
+  const selectElement = document.getElementById('country-select');
+  selectElement.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+      const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+          map.flyTo([lat, lng], 5);
+
+          if (currentMarker) map.removeLayer(currentMarker);
+
+          currentMarker = L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(`<b>${selectedOption.text}</b>`)
+              .openPopup();
+      }
+  });
+  // 4. Center map if server passed selected country coordinates on load
+  {% if selected_lat and selected_lng %}
+      const initialLat = {{ selected_lat }};
+      const initialLng = {{ selected_lng }};
+      map.setView([initialLat, initialLng], 5);
+      currentMarker = L.marker([initialLat, initialLng]).addTo(map)
+          .bindPopup("<b>Selected Location</b>").openPopup();
+  {% endif %}
+</script>
 {% endblock %}
