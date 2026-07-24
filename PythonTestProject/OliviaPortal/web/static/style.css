@@ -319,3 +319,18 @@ pre {
     gap: 0.5rem;
     margin-top: 1rem;
   }
+
+  .dropdown-select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.dropdown-select:focus {
+  outline: none;
+  border-color: #007bff;
+}

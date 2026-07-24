@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Games — Olivia Portal{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Games</h1>
+  <p class="muted">You can search any country weather and location here.</p>
+
+  <div class="game-grid">
+    <article>
+      <h2>Country</h2>
+      <p>Please select country</p>
+
+      {% if message %}<p class="ok">{{ message }}</p>{% endif %}
+
+      <form method="post" action="{{ url_for('selected_city') }}" style="margin-top:0.5rem">
+
+        <!-- Dropdown Select Menu -->
+        <div class="form-group">
+          <select name="country" id="country-select" class="dropdown-select" required>
+            <option value="" disabled selected>Select a country...</option>
+
+            <!-- If you pass a list of countries from Flask/Jinja context -->
+            {% if countries %}
+              {% for country in countries %}
+                <option value="{{ country.name }}">{{ country.name }}</option>
+              {% endfor %}
+            {% else %}
+              <!-- Hardcoded Fallback Examples -->
+              <option value="US">United States</option>
+              <option value="UK">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="JP">Japan</option>
+            {% endif %}
+          </select>
+        </div>
+
+        <button type="submit" class="secondary-btn" style="margin-top: 1rem;">Confirm</button>
+      </form>
+    </article>
+  </div>
+  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
+</section>
+{% endblock %}

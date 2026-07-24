@@ -36,6 +36,7 @@ from bi.report import export_report  # noqa: E402
 from bi.summary import category_totals, overall_stats  # noqa: E402
 from games.digit_guessing import generate_num, no_duplicates,get_digits,num_of_bulls_cows  # noqa: E402
 from data_transfer.upload_file import upload_file,allowed_file # noqa: E402
+from map.weather import find_weather,get_countries # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = "olivia-portal-dev-only-change-me-v2"
@@ -333,6 +334,33 @@ def find_value():
     # Add your search logic here (e.g., searching for key inside the file)
     flash(f"Searching for key '{search_key}' in file: {selected_file}")
     return redirect(url_for("transfer"))
+
+@app.route("/map")
+@login_required
+def map():
+    countries = get_countries()
+    return render_template(
+        "map.html",
+        username=session["username"],
+        message=session.pop("message", None),
+        countries=countries
+    )
+
+@app.route("/selected_city", methods=["POST","GET"])
+@login_required
+def selected_city():
+    selected_city = request.form.get("country")
+    print(selected_city)
+    if selected_city is None:
+        city = 'Hong Kong'
+    else:
+        city = selected_city
+
+    session["message"] = find_weather(city)
+    return redirect(url_for("map"))
+
+
+
 @app.route("/charts/<path:filename>")
 @login_required
 def chart_file(filename):
