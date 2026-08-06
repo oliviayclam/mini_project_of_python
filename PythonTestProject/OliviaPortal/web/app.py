@@ -4,7 +4,7 @@ Run from the OliviaPortal folder:
     pip install -r requirements.txt
     python web/app.py
 
-Then open http://127.0.0.1:5000
+Then open http://127.0.0.1:5001
 Login: olivia / 1234
 """
 
@@ -41,6 +41,7 @@ from map.weather import find_weather,get_countries # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = "olivia-portal-dev-only-change-me-v2"
+app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024  # 25 MB uploads
 # Set the upload path to: project_folder/data/uploaded_file
 # os.path.join(BASE_DIR, 'data', 'uploaded_file'): Dynamically constructs the path across Windows, macOS, or Linux without hardcoding slash directions (/ vs \).
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -383,5 +384,142 @@ def chart_file(filename):
     return send_from_directory(CHARTS_DIR, filename)
 
 
+@app.route("/tools")
+@login_required
+def tools():
+    return render_template(
+        "tools.html",
+        username=session["username"],
+        message=session.pop("tools_message", None),
+        error=session.pop("tools_error", None),
+        result_file=session.pop("tools_file", None),
+        result_kind=session.pop("tools_kind", None),
+        pdf_text=session.pop("tools_pdf_text", None),
+    )
+
+
+@app.route("/tools/text-media", methods=["POST"])
+@login_required
+def tools_text_media():
+    from tools.text_media import text_to_speech as make_speech
+    from tools.text_media import text_to_video as make_video
+
+    text = request.form.get("text", "")
+    output_type = request.form.get("output_type", "speech")
+    try:
+        if output_type == "video":
+            path = make_video(text)
+            session["tools_kind"] = "video"
+            session["tools_message"] = "Video created. Play it below or download."
+        else:
+            path = make_speech(text)
+            session["tools_kind"] = "audio"
+            session["tools_message"] = "Speech created. Play it below or download."
+        session["tools_file"] = path.name
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
+@app.route("/tools/bg-remove", methods=["POST"])
+@login_required
+def tools_bg_remove():
+    from tools.bg_remove import remove_background
+
+    upload = request.files.get("image")
+    if not upload or not upload.filename:
+        session["tools_error"] = "Please choose an image to upload."
+        return redirect(url_for("tools"))
+    try:
+        path = remove_background(upload.read())
+        session["tools_file"] = path.name
+        session["tools_kind"] = "image"
+        session["tools_message"] = "Background removed. Preview below or download the PNG."
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
+@app.route("/tools/pdf", methods=["POST"])
+@login_required
+def tools_pdf():
+    from tools.pdf_convert import pdf_to_speech, pdf_to_text
+
+    upload = request.files.get("pdf")
+    output_type = request.form.get("output_type", "text")
+    if not upload or not upload.filename:
+        session["tools_error"] = "Please choose a PDF to upload."
+        return redirect(url_for("tools"))
+    try:
+        data = upload.read()
+        if output_type == "speech":
+            path = pdf_to_speech(data)
+            session["tools_file"] = path.name
+            session["tools_kind"] = "audio"
+            session["tools_message"] = "PDF converted to speech. Play it below or download."
+        else:
+            text = pdf_to_text(data)
+            session["tools_pdf_text"] = text
+            session["tools_kind"] = "text"
+            session["tools_message"] = "PDF text extracted."
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
+@app.route("/tools/to-pdf", methods=["POST"])
+@login_required
+def tools_to_pdf():
+    from tools.to_pdf import resolve_text_input, text_to_pdf
+
+    typed = request.form.get("text", "")
+    output_type = request.form.get("output_type", "view")
+    text_upload = request.files.get("text_file")
+    audio_upload = request.files.get("audio_file")
+
+    text_bytes = None
+    text_name = ""
+    if text_upload and text_upload.filename:
+        text_bytes = text_upload.read()
+        text_name = text_upload.filename
+
+    audio_bytes = None
+    audio_name = ""
+    if audio_upload and audio_upload.filename:
+        audio_bytes = audio_upload.read()
+        audio_name = audio_upload.filename
+
+    try:
+        text = resolve_text_input(
+            typed_text=typed,
+            text_file=text_bytes,
+            text_filename=text_name,
+            audio_file=audio_bytes,
+            audio_filename=audio_name,
+        )
+        path = text_to_pdf(text)
+        session["tools_file"] = path.name
+        session["tools_kind"] = "pdf"
+        if output_type == "view":
+            session["tools_pdf_text"] = text
+            session["tools_message"] = "Ready to view online. You can also download the PDF."
+        else:
+            session["tools_message"] = "PDF exported. Preview below or download."
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
+@app.route("/tools/files/<path:filename>")
+@login_required
+def tools_file(filename):
+    from tools.paths import TOOLS_DIR, ensure_tools_dir
+
+    ensure_tools_dir()
+    as_attachment = request.args.get("download") == "1"
+    return send_from_directory(TOOLS_DIR, filename, as_attachment=as_attachment)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Port 5001 avoids macOS AirPlay Receiver, which already uses 5000.
+    app.run(debug=True, port=5001)

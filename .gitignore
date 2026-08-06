@@ -1,0 +1,54 @@
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Python cache / build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local secrets / env files
+.env
+.env.*
+!.env.example
+*.pem
+
+# Olivia Portal generated / uploaded data
+PythonTestProject/OliviaPortal/data/tools/
+PythonTestProject/OliviaPortal/data/charts/
+PythonTestProject/OliviaPortal/data/reports/
+PythonTestProject/OliviaPortal/data/uploaded_file/
+PythonTestProject/OliviaPortal/uploads/
+**/OliviaPortal/data/tools/
+**/OliviaPortal/data/charts/
+**/OliviaPortal/data/reports/
+**/OliviaPortal/data/uploaded_file/
+**/OliviaPortal/uploads/
+
+# Common media leftovers in the project
+*.mp3
+*.mp4
+!**/fixtures/**/*.mp3
+!**/fixtures/**/*.mp4
+
+# Jupyter
+.ipynb_checkpoints/

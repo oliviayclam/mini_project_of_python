@@ -125,14 +125,104 @@ pre {
   border-radius: 12px;
   padding: 1rem;
 }
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.tool-grid article {
+  background: #f4f7fb;
+  border-radius: 12px;
+  padding: 1rem;
+}
+.tool-result {
+  margin: 1rem 0 1.5rem;
+  padding: 1rem;
+  background: #f4f7fb;
+  border-radius: 12px;
+}
+.tool-result audio,
+.tool-result video {
+  width: 100%;
+  max-width: 640px;
+  display: block;
+  margin: 0.5rem 0 1rem;
+}
+.tool-result video {
+  background: #0f1b2d;
+  border-radius: 12px;
+}
+.pdf-frame {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  margin: 0.5rem 0 1rem;
+}
+.result-image {
+  max-width: 100%;
+  max-height: 360px;
+  display: block;
+}
+.checkerboard {
+  display: inline-block;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background:
+    linear-gradient(45deg, #d5dee8 25%, transparent 25%),
+    linear-gradient(-45deg, #d5dee8 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d5dee8 75%),
+    linear-gradient(-45deg, transparent 75%, #d5dee8 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  background-color: #fff;
+}
+.pdf-text {
+  max-height: 320px;
+  white-space: pre-wrap;
+}
+textarea, input[type="file"] {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+  width: 100%;
+  background: #fff;
+}
+textarea { resize: vertical; }
+.choice-row {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+.choice-row legend {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+}
+label.inline {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+}
+label.inline input { width: auto; }
 .secondary-btn {
   background: #e8eef8 !important;
   color: var(--ink) !important;
 }
 
+@media (max-width: 900px) {
+  .tool-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 640px) {
   .stats { grid-template-columns: 1fr; }
   .game-grid { grid-template-columns: 1fr; }
+  .tool-grid { grid-template-columns: 1fr; }
   .top { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
   nav a { margin-left: 0; margin-right: 0.9rem; }
 }

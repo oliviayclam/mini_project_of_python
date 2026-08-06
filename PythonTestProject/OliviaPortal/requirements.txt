@@ -1,2 +1,11 @@
 matplotlib>=3.7
 flask>=3.0
+gTTS>=2.5
+Pillow>=10.0
+rembg>=2.0
+onnxruntime>=1.16
+pypdf>=4.0
+moviepy>=1.0.3
+fpdf2>=2.7
+SpeechRecognition>=3.10
+pydub>=0.25

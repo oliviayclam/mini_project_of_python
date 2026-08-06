@@ -43,7 +43,7 @@ source .venv/bin/activate
 python3 web/app.py
 ```
 
-Open http://127.0.0.1:5000
+Open http://127.0.0.1:5001
 
 - Login page
 - Games page (Number Guessing + Rock-Paper-Scissors + 4 Digit Guessing in the browser)

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Tools — Olivia Portal{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Tools</h1>
+  <p class="muted">Turn text into speech or video, remove image backgrounds, convert PDFs, or export text/speech to PDF.</p>
+
+  {% if message %}<p class="ok">{{ message }}</p>{% endif %}
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  {% if result_file or pdf_text %}
+  <div class="tool-result">
+    <h2>Result</h2>
+    {% if result_kind == "audio" and result_file %}
+      <audio controls src="{{ url_for('tools_file', filename=result_file) }}"></audio>
+      <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download audio</a></p>
+    {% elif result_kind == "video" and result_file %}
+      <video controls playsinline src="{{ url_for('tools_file', filename=result_file) }}"></video>
+      <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download video</a></p>
+    {% elif result_kind == "image" and result_file %}
+      <div class="checkerboard">
+        <img class="result-image" src="{{ url_for('tools_file', filename=result_file) }}" alt="Transparent background result">
+      </div>
+      <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PNG</a></p>
+    {% elif result_kind == "pdf" and result_file and not pdf_text %}
+      <iframe class="pdf-frame" title="PDF preview" src="{{ url_for('tools_file', filename=result_file) }}"></iframe>
+    {% endif %}
+    {% if pdf_text %}
+      <h3>View online</h3>
+      <pre class="pdf-text">{{ pdf_text }}</pre>
+    {% endif %}
+    {% if result_kind == "pdf" and result_file %}
+      <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PDF</a></p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="tool-grid">
+    <article>
+      <h2>Text to speech / video</h2>
+      <p class="muted">Type text, then get spoken audio or a simple narrated MP4 slide.</p>
+      <form method="post" action="{{ url_for('tools_text_media') }}" class="stack">
+        <label>Your text
+          <textarea name="text" rows="5" required placeholder="Hello from Olivia Portal..."></textarea>
+        </label>
+        <fieldset class="choice-row">
+          <legend>Output</legend>
+          <label class="inline"><input type="radio" name="output_type" value="speech" checked> Speech (MP3)</label>
+          <label class="inline"><input type="radio" name="output_type" value="video"> Video (MP4)</label>
+        </fieldset>
+        <button type="submit">Create</button>
+      </form>
+    </article>
+
+    <article>
+      <h2>Remove background</h2>
+      <p class="muted">Upload an image and get a transparent PNG.</p>
+      <form method="post" action="{{ url_for('tools_bg_remove') }}" enctype="multipart/form-data" class="stack">
+        <label>Image file
+          <input type="file" name="image" accept="image/*" required>
+        </label>
+        <button type="submit">Remove background</button>
+      </form>
+    </article>
+
+    <article>
+      <h2>PDF to text / speech</h2>
+      <p class="muted">Extract readable text, or hear the PDF read aloud.</p>
+      <form method="post" action="{{ url_for('tools_pdf') }}" enctype="multipart/form-data" class="stack">
+        <label>PDF file
+          <input type="file" name="pdf" accept="application/pdf,.pdf" required>
+        </label>
+        <fieldset class="choice-row">
+          <legend>Output</legend>
+          <label class="inline"><input type="radio" name="output_type" value="text" checked> Text</label>
+          <label class="inline"><input type="radio" name="output_type" value="speech"> Speech (MP3)</label>
+        </fieldset>
+        <button type="submit">Convert</button>
+      </form>
+    </article>
+
+    <article>
+      <h2>Text / speech to PDF</h2>
+      <p class="muted">Type or upload text, or upload speech. View online and/or download as PDF.</p>
+      <form method="post" action="{{ url_for('tools_to_pdf') }}" enctype="multipart/form-data" class="stack">
+        <label>Type text (optional if uploading a file)
+          <textarea name="text" rows="4" placeholder="Paste or type text here..."></textarea>
+        </label>
+        <label>Or upload a text file
+          <input type="file" name="text_file" accept=".txt,text/plain">
+        </label>
+        <label>Or upload speech / audio
+          <input type="file" name="audio_file" accept="audio/*,.mp3,.wav,.m4a,.flac">
+        </label>
+        <fieldset class="choice-row">
+          <legend>Output</legend>
+          <label class="inline"><input type="radio" name="output_type" value="view" checked> View online + download PDF</label>
+          <label class="inline"><input type="radio" name="output_type" value="pdf"> Export PDF</label>
+        </fieldset>
+        <button type="submit">Create PDF</button>
+      </form>
+    </article>
+  </div>
+
+  <a class="btn secondary" href="{{ url_for('home') }}" style="margin-top:1.5rem">Back home</a>
+</section>
+{% endblock %}
