@@ -135,14 +135,14 @@
 
     <article>
       <h2>PDF to text / speech</h2>
-      <p class="muted">Extract readable text, or hear the PDF read aloud.</p>
+      <p class="muted">Extract text and preview as PDF (edit style), or hear the PDF read aloud.</p>
       <form method="post" action="{{ url_for('tools_pdf') }}" enctype="multipart/form-data" class="stack">
         <label>PDF file
           <input type="file" name="pdf" accept="application/pdf,.pdf" required>
         </label>
         <fieldset class="choice-row">
           <legend>Output</legend>
-          <label class="inline"><input type="radio" name="output_type" value="text" checked> Text</label>
+          <label class="inline"><input type="radio" name="output_type" value="text" checked> Text (PDF preview)</label>
           <label class="inline"><input type="radio" name="output_type" value="speech"> Speech (MP3)</label>
         </fieldset>
         <button type="submit">Convert</button>

@@ -459,6 +459,7 @@ def tools_bg_remove():
 @login_required
 def tools_pdf():
     from tools.pdf_convert import pdf_to_speech, pdf_to_text
+    from tools.to_pdf import DEFAULT_PDF_STYLE, text_to_pdf
 
     upload = request.files.get("pdf")
     output_type = request.form.get("output_type", "text")
@@ -474,14 +475,20 @@ def tools_pdf():
             session["tools_message"] = "PDF converted to speech. Play it below or download."
             session.pop("tools_pdf_text", None)
             session.pop("tools_pdf_preview", None)
+            session.pop("tools_pdf_style", None)
         else:
             text = pdf_to_text(data)
+            style = dict(DEFAULT_PDF_STYLE)
+            style["title"] = "Extracted from PDF"
+            path = text_to_pdf(text, style=style)
+            session["tools_file"] = path.name
+            session["tools_kind"] = "pdf"
             session["tools_pdf_text"] = text
-            session["tools_kind"] = "text"
-            session["tools_file"] = None
-            session["tools_message"] = "PDF text extracted."
-            session.pop("tools_pdf_preview", None)
-        session.pop("tools_pdf_style", None)
+            session["tools_pdf_style"] = style
+            session["tools_pdf_preview"] = True
+            session["tools_message"] = (
+                "PDF text extracted. Preview below — edit text or style, then update."
+            )
     except Exception as exc:
         session["tools_error"] = str(exc)
     return redirect(url_for("tools"))
