@@ -8,7 +8,68 @@
   {% if message %}<p class="ok">{{ message }}</p>{% endif %}
   {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
-  {% if result_file or pdf_text %}
+  {% if pdf_preview and result_kind == "pdf" and result_file %}
+  <div class="tool-result pdf-studio">
+    <h2>View online — PDF preview</h2>
+    <p class="muted">Edit the text and style, then update the PDF preview. Download when you like it.</p>
+    <div class="pdf-studio-grid">
+      <form method="post" action="{{ url_for('tools_to_pdf_update') }}" class="stack pdf-editor">
+        <label>Document title
+          <input type="text" name="pdf_title" value="{{ pdf_style.title }}">
+        </label>
+        <label>Body text
+          <textarea name="text" rows="12" required>{{ pdf_text }}</textarea>
+        </label>
+        <div class="style-grid">
+          <label>Font
+            <select name="font_family">
+              <option value="Helvetica" {% if pdf_style.font_family == "Helvetica" %}selected{% endif %}>Helvetica</option>
+              <option value="Times" {% if pdf_style.font_family == "Times" %}selected{% endif %}>Times</option>
+              <option value="Courier" {% if pdf_style.font_family == "Courier" %}selected{% endif %}>Courier</option>
+            </select>
+          </label>
+          <label>Body size
+            <input type="number" name="font_size" min="8" max="28" value="{{ pdf_style.font_size }}">
+          </label>
+          <label>Title size
+            <input type="number" name="title_size" min="10" max="36" value="{{ pdf_style.title_size }}">
+          </label>
+          <label>Alignment
+            <select name="align">
+              <option value="L" {% if pdf_style.align == "L" %}selected{% endif %}>Left</option>
+              <option value="C" {% if pdf_style.align == "C" %}selected{% endif %}>Center</option>
+              <option value="R" {% if pdf_style.align == "R" %}selected{% endif %}>Right</option>
+              <option value="J" {% if pdf_style.align == "J" %}selected{% endif %}>Justify</option>
+            </select>
+          </label>
+          <label>Line height
+            <input type="number" name="line_height" min="5" max="16" value="{{ pdf_style.line_height }}">
+          </label>
+          <label>Margin
+            <input type="number" name="margin" min="10" max="40" value="{{ pdf_style.margin }}">
+          </label>
+          <label>Title color
+            <input type="color" name="title_color" value="{{ pdf_style.title_color }}">
+          </label>
+          <label>Text color
+            <input type="color" name="text_color" value="{{ pdf_style.text_color }}">
+          </label>
+        </div>
+        <div class="actions">
+          <button type="submit">Update PDF preview</button>
+          <a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PDF</a>
+        </div>
+      </form>
+      <div class="pdf-preview-pane">
+        <iframe
+          class="pdf-frame"
+          title="PDF preview"
+          src="{{ url_for('tools_file', filename=result_file) }}?v={{ result_file }}"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+  {% elif result_file or pdf_text %}
   <div class="tool-result">
     <h2>Result</h2>
     {% if result_kind == "audio" and result_file %}
@@ -22,15 +83,13 @@
         <img class="result-image" src="{{ url_for('tools_file', filename=result_file) }}" alt="Transparent background result">
       </div>
       <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PNG</a></p>
-    {% elif result_kind == "pdf" and result_file and not pdf_text %}
+    {% elif result_kind == "pdf" and result_file %}
       <iframe class="pdf-frame" title="PDF preview" src="{{ url_for('tools_file', filename=result_file) }}"></iframe>
-    {% endif %}
-    {% if pdf_text %}
-      <h3>View online</h3>
-      <pre class="pdf-text">{{ pdf_text }}</pre>
-    {% endif %}
-    {% if result_kind == "pdf" and result_file %}
       <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PDF</a></p>
+    {% endif %}
+    {% if pdf_text and result_kind == "text" %}
+      <h3>Extracted text</h3>
+      <pre class="pdf-text">{{ pdf_text }}</pre>
     {% endif %}
   </div>
   {% endif %}
@@ -81,7 +140,7 @@
 
     <article>
       <h2>Text / speech to PDF</h2>
-      <p class="muted">Type or upload text, or upload speech. View online and/or download as PDF.</p>
+      <p class="muted">Type or upload text, or upload speech. View as PDF online, edit style, then download.</p>
       <form method="post" action="{{ url_for('tools_to_pdf') }}" enctype="multipart/form-data" class="stack">
         <label>Type text (optional if uploading a file)
           <textarea name="text" rows="4" placeholder="Paste or type text here..."></textarea>
@@ -94,8 +153,8 @@
         </label>
         <fieldset class="choice-row">
           <legend>Output</legend>
-          <label class="inline"><input type="radio" name="output_type" value="view" checked> View online + download PDF</label>
-          <label class="inline"><input type="radio" name="output_type" value="pdf"> Export PDF</label>
+          <label class="inline"><input type="radio" name="output_type" value="view" checked> View online (edit + PDF preview)</label>
+          <label class="inline"><input type="radio" name="output_type" value="pdf"> Export PDF only</label>
         </fieldset>
         <button type="submit">Create PDF</button>
       </form>

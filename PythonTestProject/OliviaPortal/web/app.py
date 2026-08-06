@@ -387,14 +387,23 @@ def chart_file(filename):
 @app.route("/tools")
 @login_required
 def tools():
+    from tools.to_pdf import DEFAULT_PDF_STYLE, normalize_pdf_style
+
+    pdf_style = normalize_pdf_style(session.get("tools_pdf_style"))
+    if session.get("tools_pdf_preview"):
+        session["tools_pdf_style"] = pdf_style
+
     return render_template(
         "tools.html",
         username=session["username"],
         message=session.pop("tools_message", None),
         error=session.pop("tools_error", None),
-        result_file=session.pop("tools_file", None),
-        result_kind=session.pop("tools_kind", None),
-        pdf_text=session.pop("tools_pdf_text", None),
+        result_file=session.get("tools_file"),
+        result_kind=session.get("tools_kind"),
+        pdf_text=session.get("tools_pdf_text"),
+        pdf_style=pdf_style,
+        pdf_preview=bool(session.get("tools_pdf_preview")),
+        default_pdf_style=DEFAULT_PDF_STYLE,
     )
 
 
@@ -416,6 +425,9 @@ def tools_text_media():
             session["tools_kind"] = "audio"
             session["tools_message"] = "Speech created. Play it below or download."
         session["tools_file"] = path.name
+        session.pop("tools_pdf_text", None)
+        session.pop("tools_pdf_preview", None)
+        session.pop("tools_pdf_style", None)
     except Exception as exc:
         session["tools_error"] = str(exc)
     return redirect(url_for("tools"))
@@ -435,6 +447,9 @@ def tools_bg_remove():
         session["tools_file"] = path.name
         session["tools_kind"] = "image"
         session["tools_message"] = "Background removed. Preview below or download the PNG."
+        session.pop("tools_pdf_text", None)
+        session.pop("tools_pdf_preview", None)
+        session.pop("tools_pdf_style", None)
     except Exception as exc:
         session["tools_error"] = str(exc)
     return redirect(url_for("tools"))
@@ -457,11 +472,16 @@ def tools_pdf():
             session["tools_file"] = path.name
             session["tools_kind"] = "audio"
             session["tools_message"] = "PDF converted to speech. Play it below or download."
+            session.pop("tools_pdf_text", None)
+            session.pop("tools_pdf_preview", None)
         else:
             text = pdf_to_text(data)
             session["tools_pdf_text"] = text
             session["tools_kind"] = "text"
+            session["tools_file"] = None
             session["tools_message"] = "PDF text extracted."
+            session.pop("tools_pdf_preview", None)
+        session.pop("tools_pdf_style", None)
     except Exception as exc:
         session["tools_error"] = str(exc)
     return redirect(url_for("tools"))
@@ -470,12 +490,13 @@ def tools_pdf():
 @app.route("/tools/to-pdf", methods=["POST"])
 @login_required
 def tools_to_pdf():
-    from tools.to_pdf import resolve_text_input, text_to_pdf
+    from tools.to_pdf import resolve_text_input, style_from_form, text_to_pdf
 
     typed = request.form.get("text", "")
     output_type = request.form.get("output_type", "view")
     text_upload = request.files.get("text_file")
     audio_upload = request.files.get("audio_file")
+    style = style_from_form(request.form)
 
     text_bytes = None
     text_name = ""
@@ -497,14 +518,38 @@ def tools_to_pdf():
             audio_file=audio_bytes,
             audio_filename=audio_name,
         )
-        path = text_to_pdf(text)
+        path = text_to_pdf(text, style=style)
         session["tools_file"] = path.name
         session["tools_kind"] = "pdf"
+        session["tools_pdf_style"] = style
         if output_type == "view":
             session["tools_pdf_text"] = text
-            session["tools_message"] = "Ready to view online. You can also download the PDF."
+            session["tools_pdf_preview"] = True
+            session["tools_message"] = "PDF preview ready. Edit text or style, then update preview."
         else:
+            session.pop("tools_pdf_text", None)
+            session.pop("tools_pdf_preview", None)
             session["tools_message"] = "PDF exported. Preview below or download."
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
+@app.route("/tools/to-pdf/update", methods=["POST"])
+@login_required
+def tools_to_pdf_update():
+    from tools.to_pdf import style_from_form, text_to_pdf
+
+    text = request.form.get("text", "")
+    style = style_from_form(request.form)
+    try:
+        path = text_to_pdf(text, style=style)
+        session["tools_file"] = path.name
+        session["tools_kind"] = "pdf"
+        session["tools_pdf_text"] = text.strip()
+        session["tools_pdf_style"] = style
+        session["tools_pdf_preview"] = True
+        session["tools_message"] = "PDF preview updated."
     except Exception as exc:
         session["tools_error"] = str(exc)
     return redirect(url_for("tools"))
