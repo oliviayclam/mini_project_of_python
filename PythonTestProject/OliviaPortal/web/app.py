@@ -494,6 +494,30 @@ def tools_pdf():
     return redirect(url_for("tools"))
 
 
+@app.route("/tools/pdf-to-word", methods=["POST"])
+@login_required
+def tools_pdf_to_word():
+    from tools.pdf_to_word import pdf_to_word
+
+    upload = request.files.get("pdf")
+    if not upload or not upload.filename:
+        session["tools_error"] = "Please choose a PDF to upload."
+        return redirect(url_for("tools"))
+    try:
+        path = pdf_to_word(upload.read(), source_name=upload.filename)
+        session["tools_file"] = path.name
+        session["tools_kind"] = "docx"
+        session["tools_message"] = (
+            "Word file created with layout close to the PDF. Download below."
+        )
+        session.pop("tools_pdf_text", None)
+        session.pop("tools_pdf_preview", None)
+        session.pop("tools_pdf_style", None)
+    except Exception as exc:
+        session["tools_error"] = str(exc)
+    return redirect(url_for("tools"))
+
+
 @app.route("/tools/to-pdf", methods=["POST"])
 @login_required
 def tools_to_pdf():

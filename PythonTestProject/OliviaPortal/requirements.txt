@@ -9,3 +9,4 @@ moviepy>=1.0.3
 fpdf2>=2.7
 SpeechRecognition>=3.10
 pydub>=0.25
+pdf2docx>=0.5.8

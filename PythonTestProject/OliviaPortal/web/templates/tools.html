@@ -86,6 +86,9 @@
     {% elif result_kind == "pdf" and result_file %}
       <iframe class="pdf-frame" title="PDF preview" src="{{ url_for('tools_file', filename=result_file) }}"></iframe>
       <p><a class="btn secondary" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download PDF</a></p>
+    {% elif result_kind == "docx" and result_file %}
+      <p class="muted">Word document ready (layout kept close to the original PDF).</p>
+      <p><a class="btn" href="{{ url_for('tools_file', filename=result_file, download=1) }}">Download Word (.docx)</a></p>
     {% endif %}
     {% if pdf_text and result_kind == "text" %}
       <h3>Extracted text</h3>
@@ -146,6 +149,17 @@
           <label class="inline"><input type="radio" name="output_type" value="speech"> Speech (MP3)</label>
         </fieldset>
         <button type="submit">Convert</button>
+      </form>
+    </article>
+
+    <article>
+      <h2>PDF to Word</h2>
+      <p class="muted">Upload a PDF and download a Word file with layout close to the original.</p>
+      <form method="post" action="{{ url_for('tools_pdf_to_word') }}" enctype="multipart/form-data" class="stack">
+        <label>PDF file
+          <input type="file" name="pdf" accept="application/pdf,.pdf" required>
+        </label>
+        <button type="submit">Convert to Word</button>
       </form>
     </article>
       
