@@ -19,6 +19,15 @@ dist/
 .coverage
 htmlcov/
 
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vite/
+*.tsbuildinfo
+
 # IDE / OS
 .idea/
 .vscode/
@@ -32,6 +41,11 @@ Thumbs.db
 !.env.example
 *.pem
 
+# Databases / local runtime data
+*.db
+*.sqlite
+*.sqlite3
+
 # Olivia Portal generated / uploaded data
 PythonTestProject/OliviaPortal/data/tools/
 PythonTestProject/OliviaPortal/data/charts/
@@ -43,6 +57,16 @@ PythonTestProject/OliviaPortal/uploads/
 **/OliviaPortal/data/reports/
 **/OliviaPortal/data/uploaded_file/
 **/OliviaPortal/uploads/
+
+# Network Cabling local data / build artifacts
+PythonTestProject/NetworkCabling/backend/.venv/
+PythonTestProject/NetworkCabling/backend/data/
+PythonTestProject/NetworkCabling/frontend/node_modules/
+PythonTestProject/NetworkCabling/frontend/dist/
+**/NetworkCabling/backend/.venv/
+**/NetworkCabling/backend/data/*.db
+**/NetworkCabling/frontend/node_modules/
+**/NetworkCabling/frontend/dist/
 
 # Common media leftovers in the project
 *.mp3
