@@ -6,6 +6,7 @@ Python learning / mini projects.
 
 - `PythonTestProject/OliviaPortal` — login portal with games and simple BI reports
 - `PythonTestProject/NetworkCabling` — Network & Cabling system (React + FastAPI)
+- `PythonTestProject/DimSumMerge` — Yum Cha Merge / 點心合合樂 (React dim sum merge game)
 
 ### Run Network Cabling
 
@@ -21,3 +22,13 @@ cd PythonTestProject/NetworkCabling/frontend
 npm install
 npm run dev
 ```
+
+### Run Yum Cha Merge
+
+```bash
+cd PythonTestProject/DimSumMerge
+npm install
+npm start
+```
+
+Opens http://localhost:3000

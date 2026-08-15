@@ -1,0 +1,528 @@
+:root {
+  --pink: #f7c6d0;
+  --mint: #c8f0e0;
+  --gold: #e2b657;
+  --red: #c44536;
+  --ink: #3b2430;
+  --cream: #fff7f2;
+  --tile: #fffaf6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Trebuchet MS", "PingFang HK", "Noto Sans TC", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 20% 10%, #ffe3ea 0 18%, transparent 19%),
+    radial-gradient(circle at 80% 0%, #d9fff0 0 16%, transparent 17%),
+    repeating-linear-gradient(
+      45deg,
+      #f4d4c4 0 12px,
+      #efc9b8 12px 24px,
+      #f7ddd0 24px 36px,
+      #e8b9a8 36px 48px
+    );
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.scene {
+  background: linear-gradient(180deg, #fff6fb, #fff);
+  border: 4px solid #fff;
+  border-radius: 28px;
+  padding: 1.5rem;
+  box-shadow: 0 16px 0 rgba(196, 69, 54, 0.12);
+  text-align: center;
+}
+
+.lanterns {
+  display: flex;
+  justify-content: space-around;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.eyebrow {
+  letter-spacing: 0.12em;
+  color: var(--red);
+  font-weight: 700;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  margin: 0.2rem 0;
+}
+
+.subtitle {
+  font-size: 1.4rem;
+  margin: 0;
+  color: #8a4b5e;
+}
+
+.lead {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.choice,
+.shout,
+.chip,
+.ghost,
+.hud-actions button,
+.steamer {
+  cursor: pointer;
+  border: 3px solid #3b2430;
+  border-radius: 18px;
+  background: var(--cream);
+  padding: 0.9rem;
+  box-shadow: 0 4px 0 #3b2430;
+}
+
+.choice:hover,
+.shout:hover,
+.hud-actions button:hover,
+.steamer:hover {
+  transform: translateY(1px);
+  box-shadow: 0 3px 0 #3b2430;
+}
+
+.choice b {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.choice span,
+.choice small {
+  display: block;
+}
+
+.mood-chill {
+  background: #e7fff6;
+}
+.mood-normal {
+  background: #fff1c9;
+}
+.mood-spicy {
+  background: #ffd4d0;
+}
+
+.chibi-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chibi {
+  background: var(--mint);
+  border-radius: 20px;
+  padding: 0.6rem 0.8rem;
+  min-width: 110px;
+}
+
+.chibi .face {
+  font-size: 2.2rem;
+}
+
+.bubble,
+.bubble.big {
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  padding: 0.8rem 1rem;
+  min-width: 220px;
+}
+
+.bubble strong,
+.bubble.big strong {
+  display: block;
+  font-size: 1.8rem;
+}
+
+.bubble span,
+.bubble.big span {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+.play {
+  position: relative;
+}
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff7fb;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  padding: 0.7rem 1rem;
+}
+
+.hud-brand strong {
+  display: block;
+  font-size: 1.3rem;
+}
+
+.hud-stats,
+.hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 1.05rem;
+}
+
+.tea-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tea-meter i {
+  display: inline-block;
+  width: 90px;
+  height: 14px;
+  background: #eadfe4;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.tea-meter b {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #86c7a3, #3d8b6e);
+}
+
+.table {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 800px) {
+  .table {
+    grid-template-columns: 1fr;
+  }
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.45rem;
+  background: linear-gradient(180deg, #fde7ee, #f8d9c6);
+  padding: 0.7rem;
+  border-radius: 22px;
+  border: 4px solid #fff;
+}
+
+.tile {
+  aspect-ratio: 1;
+  border: 2px solid #d9a8b4;
+  border-radius: 16px;
+  background: var(--tile);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem;
+  cursor: pointer;
+}
+
+.tile.selected {
+  outline: 4px solid var(--gold);
+  transform: scale(1.04);
+}
+
+.tile-emoji {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+}
+
+.tile-zh {
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.tile-en,
+.en {
+  font-size: 0.7rem;
+  opacity: 0.75;
+}
+
+.tile.empty {
+  background: repeating-linear-gradient(#f3e0d6, #f3e0d6 6px, #ead3c7 6px 12px);
+}
+
+.tile-empty {
+  opacity: 0.35;
+}
+
+.lv-1 { background: #fff; }
+.lv-2 { background: #fff4d6; }
+.lv-3 { background: #ffe4f0; }
+.lv-4 { background: #ffe0c8; }
+.lv-5 { background: #ffd0d0; }
+.lv-6 { background: #e4fff4; }
+.lv-7 { background: #fff1b8; }
+.lv-8 { background: linear-gradient(180deg, #ffe27a, #ffb4d6); }
+
+.orders h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.3rem;
+}
+
+.ticket {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.7rem;
+  background: #fffceb;
+}
+
+.ticket-head,
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.ticket-bar {
+  height: 8px;
+  background: #ead9a8;
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0.4rem 0;
+}
+
+.ticket-bar i {
+  display: block;
+  height: 100%;
+  background: var(--red);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 4.5rem;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  padding: 0.6rem 1rem;
+  font-size: 1.2rem;
+  z-index: 5;
+}
+
+.help {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.8rem;
+  font-size: 1.05rem;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(59, 36, 48, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 8;
+}
+
+.panel,
+.minigame {
+  background: #fff9fc;
+  border: 4px solid var(--ink);
+  border-radius: 24px;
+  padding: 1.2rem;
+  width: min(640px, 100%);
+  text-align: center;
+}
+
+.minigame h2 {
+  font-size: 2rem;
+  margin: 0.2rem 0 0.6rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin: 0.6rem 0;
+}
+
+.chip.on {
+  background: var(--gold);
+}
+
+.ghost {
+  background: transparent;
+  box-shadow: none;
+  margin-top: 0.6rem;
+}
+
+.shout {
+  margin-top: 1rem;
+  font-size: 1.6rem;
+  background: var(--pink);
+  width: min(420px, 100%);
+}
+
+.walk-track,
+.cart-lane,
+.meter,
+.look-bar {
+  position: relative;
+  height: 70px;
+  background: #f3e8ee;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.hot-zone,
+.meter .green {
+  position: absolute;
+  left: 62%;
+  width: 16%;
+  top: 0;
+  bottom: 0;
+  background: rgba(80, 190, 140, 0.45);
+}
+
+.waitress-walk {
+  position: absolute;
+  top: 8px;
+  font-size: 2.2rem;
+  transform: translateX(-50%);
+}
+
+.cart {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  top: 8px;
+  white-space: nowrap;
+}
+
+.cart-emoji {
+  font-size: 2rem;
+}
+
+.steamer {
+  min-width: 72px;
+  background: #fff;
+}
+
+.meter .needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--red);
+  transform: translateX(-50%);
+}
+
+.look-bar i,
+.ticket-bar i {
+  background: #5aa887;
+}
+
+.look-bar i {
+  display: block;
+  height: 100%;
+}
+
+.auntie {
+  font-size: 2rem;
+  opacity: 0.45;
+}
+
+.auntie.looking {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.pull-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  height: 140px;
+}
+
+.tin {
+  font-size: 2.4rem;
+}
+
+.stream {
+  width: 10px;
+  background: #c47a3a;
+  border-radius: 8px;
+  align-self: flex-end;
+}
+
+.result {
+  text-align: center;
+}
+
+.stamp {
+  font-size: 2.6rem;
+  font-weight: 900;
+  border: 6px solid;
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  transform: rotate(-8deg);
+  margin: 0.6rem 0;
+}
+
+.stamp.win {
+  color: #1f7a4c;
+  border-color: #1f7a4c;
+}
+
+.stamp.lose {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.npc-line {
+  font-size: 1.25rem;
+}
